@@ -3,9 +3,19 @@ tests does not guarantee that your solution is correct. The Project Asssistant t
 many additional test cases that you must also pass to complete the project. You should write your
 own additional test cases to cover any failed tests shown in the Project Assistant feedback.
 """
-import unittest
-import solution
 
+#
+# Usage: python tests/test_solution.py -v
+#
+
+import unittest
+
+import os,sys,inspect
+currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
+parentdir = os.path.dirname(currentdir)
+sys.path.insert(0,parentdir)
+
+import solution
 
 class TestNakedTwins(unittest.TestCase):
     before_naked_twins_1 = {'I6': '4', 'H9': '3', 'I2': '6', 'E8': '1', 'H3': '5', 'H7': '8', 'I7': '1', 'I4': '8',
