@@ -57,9 +57,136 @@ def naked_twins(values):
     and because it is simpler (since the reduce_puzzle function already calls this
     strategy repeatedly).
     """
-    # TODO: Implement this function!
+    # Go through all cells in the grid.
+    for row in range(0, len(rows)):
+        for col in range(0, len(cols)):
+            key = rows[row] + cols[col]
+            value = values[key]
+
+            # If this value has multiple digits, check for a naked twin.
+            if len(value) == 2:
+                # Check against all other cells in the row.
+#                print('Row')
+                count = 1
+                inUnit = False # True if the current value is contained in this unit and a valid naked twin check.
+                # Look for a match of this value in the remainder of the row.
+                for colIndex in range(0, len(cols)):
+                    indexKey = rows[row] + cols[colIndex]
+#                        print('Checking cell ' + indexKey + ' with value ' + values[indexKey] + ' against ' + key + ' with value ' + value + ' for ' + value1)
+                    if indexKey != key and values[indexKey] == value:
+                        count = count + 1
+                    elif indexKey == key:
+                        inUnit = True
+                if count == 2 and inUnit:
+                    # We have a naked twin (two occurrences of the value exist in this unit).
+                    # Go through all other cells in the unit and remove the digits contained in this value.
+                    #print('Found a naked-twin in row containing ' + key)
+                    for colIndex in range(0, len(cols)):
+                        indexKey = rows[row] + cols[colIndex]
+                        if values[indexKey] != value:
+                            # Remove the digits contained in this value from the current box's value.
+                            for digit in [char for char in value]:
+                                #print('Removing naked-twin value: ' + str(digit))
+                                values[indexKey] = values[indexKey].replace(digit, '')
+
+                # Check against all other cells in the column.
+#                print('Column')
+                count = 1
+                inUnit = False # True if the current value is contained in this unit and a valid naked twin check.
+                # Look for a match of this value in the remainder of the unit.
+                for rowIndex in range(0, len(rows)):
+                    indexKey = rows[rowIndex] + cols[col]
+                    #print('Checking cell ' + indexKey + ' with value ' + values[indexKey] + ' against ' + key + ' with value ' + value)
+                    if indexKey != key and values[indexKey] == value:
+                        count = count + 1
+                    elif indexKey == key:
+                        inUnit = True
+                if count == 2 and inUnit:
+                    # We have a naked twin (two occurrences of the value exist in this unit).
+                    # Go through all other cells in the unit and remove the digits contained in this value.
+                    #print('Found a naked-twin in column containing ' + key + ' with ' + key + ' containing value ' + value)
+                    for rowIndex in range(0, len(rows)):
+                        indexKey = rows[rowIndex] + cols[col]
+                        if values[indexKey] != value:
+                            # Remove the digits contained in this value from the current box's value.
+                            for digit in [char for char in value]:
+                                #print('Removing naked-twin digit ' + str(digit) + ' from ' + indexKey + ' with original value ' + values[indexKey] + ' and new value ' + values[indexKey].replace(digit, ''))
+                                values[indexKey] = values[indexKey].replace(digit, '')
+
+                # Check against all other cells in the box.
+#                print('Box')
+                count = 1
+                inUnit = False
+                boxX = floor(cols.index(key[1]) / 3) * 3
+                boxY = floor(rows.index(key[0]) / 3) * 3
+
+                # Look for a match of this value in the remainder of the unit.
+                for y in range(boxY, boxY + 3):
+                    for x in range(boxX, boxX + 3):
+                        indexKey = rows[y] + cols[x]
+#                        print('Checking cell ' + indexKey + ' with value ' + values[indexKey] + ' against ' + key + ' with value ' + value + ' for ' + value1)
+                        if indexKey != key and values[indexKey] == value:
+                            count = count + 1
+                        elif indexKey == key:
+                            inUnit = True
+                if count == 2 and inUnit:
+                    # We have a naked twin (two occurrences of the value exist in this unit).
+                    # Go through all other cells in the unit and remove the digits contained in this value.
+                    #print('Found a naked-twin in 3x3 box containing ' + key)
+                    for y in range(boxY, boxY + 3):
+                        for x in range(boxX, boxX + 3):
+                            indexKey = rows[y] + cols[x]
+                            if values[indexKey] != value:
+                                # Remove the digits contained in this value from the current box's value.
+                                for digit in [char for char in value]:
+                                    #print('Removing naked-twin value: ' + str(digit))
+                                    values[indexKey] = values[indexKey].replace(digit, '')
+
+                # Check against all other cells in the diagonal.
+#                print('Left Diagonal')
+                count = 1
+                inUnit = False
+                # Look for a match of this value in the remainder of the unit.
+                for indexKey in diagonal_units[0]:
+#                        print('Checking cell ' + indexKey + ' with value ' + values[indexKey] + ' against ' + key + ' with value ' + value + ' for ' + value1)
+                    if indexKey != key and values[indexKey] == value:
+                        count = count + 1
+                    elif indexKey == key:
+                        inUnit = True
+                if count == 2 and inUnit:
+                    # We have a naked twin (two occurrences of the value exist in this unit).
+                    # Go through all other cells in the unit and remove the digits contained in this value.
+                    #print('Found a naked-twin in left diagonal containing ' + key)
+                    for indexKey in diagonal_units[0]:
+                        if values[indexKey] != value:
+                            # Remove the digits contained in this value from the current box's value.
+                            for digit in [char for char in value]:
+                                #print('Removing naked-twin value: ' + str(digit))
+                                values[indexKey] = values[indexKey].replace(digit, '')
+
+                # Check against all other cells in the diagonal.
+#                print('Right Diagonal')
+                count = 1
+                inUnit = False
+                # Look for a match of this value in the remainder of the unit.
+                for indexKey in diagonal_units[1]:
+#                        print('Checking cell ' + indexKey + ' with value ' + values[indexKey] + ' against ' + key + ' with value ' + value + ' for ' + value1)
+                    if indexKey != key and values[indexKey] == value:
+                        count = count + 1
+                    elif indexKey == key:
+                        inUnit = True
+                if count == 2 and inUnit:
+                    # We have a naked twin (two occurrences of the value exist in this unit).
+                    # Go through all other cells in the unit and remove the digits contained in this value.
+                    #print('Found a naked-twin in right diagonal containing ' + key)
+                    for indexKey in diagonal_units[1]:
+                        if values[indexKey] != value:
+                            # Remove the digits contained in this value from the current box's value.
+                            for digit in [char for char in value]:
+                                #print('Removing naked-twin value: ' + str(digit))
+                                values[indexKey] = values[indexKey].replace(digit, '')
+
     return values
-    #raise NotImplementedError
 
 
 def eliminate(values):
@@ -422,12 +549,12 @@ def solve(grid):
 if __name__ == "__main__":
     diag_sudoku_grid = '2.............62....1....7...6..8...3...9...7...6..4...4....8....52.............3'
 
-    values = grid2values(diag_sudoku_grid)
-    display(values)
-    print('-------------------------------')
-    values = eliminate(values)
-    values = only_choice(values)
-    display(values)
+#    values = grid2values(diag_sudoku_grid)
+#    display(values)
+#    print('-------------------------------')
+#    values = eliminate(values)
+#    values = only_choice(values)
+#    display(values)
 
     display(grid2values(diag_sudoku_grid))
     result = solve(diag_sudoku_grid)
