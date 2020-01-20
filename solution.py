@@ -102,7 +102,7 @@ def eliminate(values):
         for colIndex in range(0, len(cols)):
             indexKey = row + cols[colIndex]
             if not indexKey in readKeys.keys():
-                values[indexKey] = values[indexKey].replace(value, '')
+                assign_value(values, indexKey, values[indexKey].replace(value, ''))
                 #print('Replaced ' + value + ' in cell ' + indexKey + ': ' + values[indexKey])
 
         #print('Column')
@@ -110,7 +110,7 @@ def eliminate(values):
         for rowIndex in range(0, len(rows)):
             indexKey = rows[rowIndex] + col
             if not indexKey in readKeys.keys():
-                values[indexKey] = values[indexKey].replace(value, '')
+                assign_value(values, indexKey, values[indexKey].replace(value, ''))
                 #print('Replaced ' + value + ' in cell ' + indexKey + ': ' + values[indexKey])
 
         #print('Left Diagonal')
@@ -119,7 +119,7 @@ def eliminate(values):
             # A single-digit key is in a diagonal, remove it from all other diagonal values.
             for indexKey in diagonal_units[0]:
                 if not indexKey in readKeys.keys():
-                    values[indexKey] = values[indexKey].replace(value, '')
+                    assign_value(values, indexKey, values[indexKey].replace(value, ''))
                     #print('Replaced ' + value + ' in cell ' + indexKey + ': ' + values[indexKey])
 
         #print('Right Diagonal')
@@ -128,7 +128,7 @@ def eliminate(values):
             # A single-digit key is in a diagonal, remove it from all other diagonal values.
             for indexKey in diagonal_units[1]:
                 if not indexKey in readKeys.keys():
-                    values[indexKey] = values[indexKey].replace(value, '')
+                    assign_value(values, indexKey, values[indexKey].replace(value, ''))
                     #print('Replaced ' + value + ' in cell ' + indexKey + ': ' + values[indexKey])
 
         #print('Box')
@@ -140,7 +140,7 @@ def eliminate(values):
             for x in range(boxX, boxX + 3):
                 indexKey = rows[y] + cols[x]
                 if not indexKey in readKeys.keys():
-                    values[indexKey] = values[indexKey].replace(value, '')
+                    assign_value(values, indexKey, values[indexKey].replace(value, ''))
                     #print('Replaced ' + value + ' in cell ' + indexKey + ': ' + values[indexKey])
 
     return values
@@ -253,35 +253,35 @@ def only_choice(values):
                     if hash1[hashKey]['count'] == 1:
                         setKey = hash1[hashKey]['key']
 #                        print('Only choice for ' + key + ' is ' + hashKey)
-                        values[key] = hashKey
+                        assign_value(values, key, hashKey)
 
                 # Find any hash counts with a score of 1 and set their value in the cell key.
                 for hashKey in hash2.keys():
                     if hash2[hashKey]['count'] == 1:
                         setKey = hash2[hashKey]['key']
 #                        print('Only choice for ' + key + ' is ' + hashKey)
-                        values[key] = hashKey
+                        assign_value(values, key, hashKey)
 
                 # Find any hash counts with a score of 1 and set their value in the cell key.
                 for hashKey in hash3.keys():
                     if hash3[hashKey]['count'] == 1:
                         setKey = hash3[hashKey]['key']
 #                        print('Only choice for ' + key + ' is ' + hashKey)
-                        values[key] = hashKey
+                        assign_value(values, key, hashKey)
 
                 # Find any hash counts with a score of 1 and set their value in the cell key.
                 for hashKey in hash4.keys():
                     if hash4[hashKey]['count'] == 1:
                         setKey = hash4[hashKey]['key']
                         #print('Only choice for ' + key + ' is ' + hashKey)
-                        values[key] = hashKey
+                        assign_value(values, key, hashKey)
 
                 # Find any hash counts with a score of 1 and set their value in the cell key.
                 for hashKey in hash5.keys():
                     if hash5[hashKey]['count'] == 1:
                         setKey = hash5[hashKey]['key']
                         #print('Only choice for ' + key + ' is ' + hashKey)
-                        values[key] = hashKey
+                        assign_value(values, key, hashKey)
 
     return values
 
@@ -390,7 +390,7 @@ def search(values):
             # Replace the multi-values with the selected value to try.
             #print('Trying ' + key + '=' + digit)
             new_values = values.copy()
-            new_values[key] = digit
+            assign_value(new_values, key, digit)
 
             result = search(new_values)
             if result:
