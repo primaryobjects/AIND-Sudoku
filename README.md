@@ -87,7 +87,7 @@ This solution includes functionality for solving diagonal Sudoku boards, in addi
 
 The naked-twins problem is a pattern on the Sudoku board where a unit (row, column, 3x3 grid, or diagonal) contains two instances of a box with the same two digit values. For example, a row might contain the possible values `23` and two instances of this value are located within the row. In such a case, it's clear that the two boxes must contain either the value `2` or the value `3`. Therefore, we can eliminate these two values from all other boxes in the row (or unit).
 
-The solution for detecting and eliminating a naked-twin is implemented by first traversing all boxes on the board. If the box's value has two digits, we have a potential naked twin. We search across all unit types (row, column, 3x3 grid, diagonal) and check if the value exists within the unit and it is found exactly two times. If these conditions are true, we have a naked twin. We then iterate across all boxes in the unit and remove the naked-twin digits from the other boxes in the unit, excluding the two boxes that comprise the naked-twin.
+The solution for detecting and eliminating a naked-twin is implemented by first traversing all boxes on the board. If the box's value has two digits, we have a potential naked twin. We search across all unit types (row, column, 3x3 grid, diagonal) and check if the value exists within the unit and it is found exactly two times. If these conditions are true, we have a naked twin. We then iterate across all other boxes in the unit (skipping the two that comprise the naked-twin) and remove the naked-twin's digits from the other box values in the unit.
 
 The following steps detail the algorithm.
 
