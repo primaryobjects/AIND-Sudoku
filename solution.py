@@ -81,13 +81,11 @@ def naked_twins(values):
             # If this value has multiple digits, check for a naked twin.
             if len(value) == 2:
                 # Check against all other cells in the row.
-#                print('Row')
                 count = 1
                 inUnit = False # True if the current value is contained in this unit and a valid naked twin check.
                 # Look for a match of this value in the remainder of the row.
                 for colIndex in range(0, len(cols)):
                     indexKey = rows[row] + cols[colIndex]
-#                        print('Checking cell ' + indexKey + ' with value ' + values[indexKey] + ' against ' + key + ' with value ' + value + ' for ' + value1)
                     if indexKey != key and values[indexKey] == value:
                         count = count + 1
                     elif indexKey == key:
@@ -95,23 +93,19 @@ def naked_twins(values):
                 if count == 2 and inUnit:
                     # We have a naked twin (two occurrences of the value exist in this unit).
                     # Go through all other cells in the unit and remove the digits contained in this value.
-                    #print('Found a naked-twin in row containing ' + key)
                     for colIndex in range(0, len(cols)):
                         indexKey = rows[row] + cols[colIndex]
                         if values[indexKey] != value:
                             # Remove the digits contained in this value from the current box's value.
                             for digit in [char for char in value]:
-                                #print('Removing naked-twin value: ' + str(digit))
                                 values[indexKey] = values[indexKey].replace(digit, '')
 
                 # Check against all other cells in the column.
-#                print('Column')
                 count = 1
                 inUnit = False # True if the current value is contained in this unit and a valid naked twin check.
                 # Look for a match of this value in the remainder of the unit.
                 for rowIndex in range(0, len(rows)):
                     indexKey = rows[rowIndex] + cols[col]
-                    #print('Checking cell ' + indexKey + ' with value ' + values[indexKey] + ' against ' + key + ' with value ' + value)
                     if indexKey != key and values[indexKey] == value:
                         count = count + 1
                     elif indexKey == key:
@@ -119,17 +113,14 @@ def naked_twins(values):
                 if count == 2 and inUnit:
                     # We have a naked twin (two occurrences of the value exist in this unit).
                     # Go through all other cells in the unit and remove the digits contained in this value.
-                    #print('Found a naked-twin in column containing ' + key + ' with ' + key + ' containing value ' + value)
                     for rowIndex in range(0, len(rows)):
                         indexKey = rows[rowIndex] + cols[col]
                         if values[indexKey] != value:
                             # Remove the digits contained in this value from the current box's value.
                             for digit in [char for char in value]:
-                                #print('Removing naked-twin digit ' + str(digit) + ' from ' + indexKey + ' with original value ' + values[indexKey] + ' and new value ' + values[indexKey].replace(digit, ''))
                                 values[indexKey] = values[indexKey].replace(digit, '')
 
                 # Check against all other cells in the box.
-#                print('Box')
                 count = 1
                 inUnit = False
                 boxX, boxY = get_box_coordinates(key[0], key[1])
@@ -138,7 +129,6 @@ def naked_twins(values):
                 for y in range(boxY, boxY + 3):
                     for x in range(boxX, boxX + 3):
                         indexKey = rows[y] + cols[x]
-#                        print('Checking cell ' + indexKey + ' with value ' + values[indexKey] + ' against ' + key + ' with value ' + value + ' for ' + value1)
                         if indexKey != key and values[indexKey] == value:
                             count = count + 1
                         elif indexKey == key:
@@ -146,23 +136,19 @@ def naked_twins(values):
                 if count == 2 and inUnit:
                     # We have a naked twin (two occurrences of the value exist in this unit).
                     # Go through all other cells in the unit and remove the digits contained in this value.
-                    #print('Found a naked-twin in 3x3 box containing ' + key)
                     for y in range(boxY, boxY + 3):
                         for x in range(boxX, boxX + 3):
                             indexKey = rows[y] + cols[x]
                             if values[indexKey] != value:
                                 # Remove the digits contained in this value from the current box's value.
                                 for digit in [char for char in value]:
-                                    #print('Removing naked-twin value: ' + str(digit))
                                     values[indexKey] = values[indexKey].replace(digit, '')
 
                 # Check against all other cells in the diagonal.
-#                print('Left Diagonal')
                 count = 1
                 inUnit = False
                 # Look for a match of this value in the remainder of the unit.
                 for indexKey in diagonal_units[0]:
-#                        print('Checking cell ' + indexKey + ' with value ' + values[indexKey] + ' against ' + key + ' with value ' + value + ' for ' + value1)
                     if indexKey != key and values[indexKey] == value:
                         count = count + 1
                     elif indexKey == key:
@@ -170,21 +156,17 @@ def naked_twins(values):
                 if count == 2 and inUnit:
                     # We have a naked twin (two occurrences of the value exist in this unit).
                     # Go through all other cells in the unit and remove the digits contained in this value.
-                    #print('Found a naked-twin in left diagonal containing ' + key)
                     for indexKey in diagonal_units[0]:
                         if values[indexKey] != value:
                             # Remove the digits contained in this value from the current box's value.
                             for digit in [char for char in value]:
-                                #print('Removing naked-twin value: ' + str(digit))
                                 values[indexKey] = values[indexKey].replace(digit, '')
 
                 # Check against all other cells in the diagonal.
-#                print('Right Diagonal')
                 count = 1
                 inUnit = False
                 # Look for a match of this value in the remainder of the unit.
                 for indexKey in diagonal_units[1]:
-#                        print('Checking cell ' + indexKey + ' with value ' + values[indexKey] + ' against ' + key + ' with value ' + value + ' for ' + value1)
                     if indexKey != key and values[indexKey] == value:
                         count = count + 1
                     elif indexKey == key:
@@ -192,12 +174,10 @@ def naked_twins(values):
                 if count == 2 and inUnit:
                     # We have a naked twin (two occurrences of the value exist in this unit).
                     # Go through all other cells in the unit and remove the digits contained in this value.
-                    #print('Found a naked-twin in right diagonal containing ' + key)
                     for indexKey in diagonal_units[1]:
                         if values[indexKey] != value:
                             # Remove the digits contained in this value from the current box's value.
                             for digit in [char for char in value]:
-                                #print('Removing naked-twin value: ' + str(digit))
                                 values[indexKey] = values[indexKey].replace(digit, '')
 
     return values
@@ -236,43 +216,32 @@ def eliminate(values):
         col = key[1]
         value = readKeys[key]
 
-        #print('Working on ' + row + col)
-
         # Remove this value from all cells in the row.
-        #print('Row')
         for colIndex in range(0, len(cols)):
             indexKey = row + cols[colIndex]
             if not indexKey in readKeys.keys():
                 values[indexKey] = values[indexKey].replace(value, '')
-                #print('Replaced ' + value + ' in cell ' + indexKey + ': ' + values[indexKey])
 
-        #print('Column')
         # Remove this value from all cells in the column.
         for rowIndex in range(0, len(rows)):
             indexKey = rows[rowIndex] + col
             if not indexKey in readKeys.keys():
                 values[indexKey] = values[indexKey].replace(value, '')
-                #print('Replaced ' + value + ' in cell ' + indexKey + ': ' + values[indexKey])
 
-        #print('Left Diagonal')
         # Remove this value from all cells in the diagonal.
         if key in diagonal_units[0]:
             # A single-digit key is in a diagonal, remove it from all other diagonal values.
             for indexKey in diagonal_units[0]:
                 if not indexKey in readKeys.keys():
                     values[indexKey] = values[indexKey].replace(value, '')
-                    #print('Replaced ' + value + ' in cell ' + indexKey + ': ' + values[indexKey])
 
-        #print('Right Diagonal')
         # Remove this value from all cells in the diagonal.
         if key in diagonal_units[1]:
             # A single-digit key is in a diagonal, remove it from all other diagonal values.
             for indexKey in diagonal_units[1]:
                 if not indexKey in readKeys.keys():
                     values[indexKey] = values[indexKey].replace(value, '')
-                    #print('Replaced ' + value + ' in cell ' + indexKey + ': ' + values[indexKey])
 
-        #print('Box')
         # Remove this value from all cells in the 3x3 box.
         boxX, boxY = get_box_coordinates(row, col)
 
@@ -281,7 +250,6 @@ def eliminate(values):
                 indexKey = rows[y] + cols[x]
                 if not indexKey in readKeys.keys():
                     values[indexKey] = values[indexKey].replace(value, '')
-                    #print('Replaced ' + value + ' in cell ' + indexKey + ': ' + values[indexKey])
 
     return values
 
@@ -315,37 +283,28 @@ def only_choice(values):
             # If this value has multiple digits, check for an only-choice.
             if len(value) > 1:
                 # Check against all other cells in the row.
-#                print('Row')
                 hash1 = {}
                 # Go through each digit in the cell.
                 for value1 in [char for char in value]:
                     # Check this digit against each value in the row.
                     for colIndex in range(0, len(cols)):
                         indexKey = rows[row] + cols[colIndex]
-#                        print('Checking cell ' + indexKey + ' with value ' + values[indexKey] + ' against ' + key + ' with value ' + value + ' for ' + value1)
                         if values[indexKey].find(value1) != -1:
                             hashKey = str(value1)
                             hash1[hashKey] = { 'key': key, 'count': (hash1[hashKey]['count'] + 1 if hashKey in hash1 else 1) }
 
-#                print(hash1)
-
                 # Check against all other cells in the column.
-#                print('Column')
                 hash2 = {}
                 # Go through each digit in the cell.
                 for value1 in [char for char in value]:
                     # Check this digit against each value in the column.
                     for rowIndex in range(0, len(rows)):
                         indexKey = rows[rowIndex] + cols[col]
-#                        print('Checking cell ' + indexKey + ' with value ' + values[indexKey] + ' against ' + key + ' with value ' + value + ' for ' + value1)
                         if values[indexKey].find(value1) != -1:
                             hashKey = str(value1)
                             hash2[hashKey] = { 'key': key, 'count': (hash2[hashKey]['count'] + 1 if hashKey in hash2 else 1) }
 
-#                print(hash2)
-
                 # Check against all other cells in the box.
-#                print('Box')
                 hash3 = {}
                 # Remove this value from all cells in the 3x3 box.
                 boxX, boxY = get_box_coordinates(key[0], key[1])
@@ -356,33 +315,28 @@ def only_choice(values):
                     for y in range(boxY, boxY + 3):
                         for x in range(boxX, boxX + 3):
                             indexKey = rows[y] + cols[x]
-#                            print('Checking cell ' + indexKey + ' with value ' + values[indexKey] + ' against ' + key + ' with value ' + value + ' for ' + value1)
                             if values[indexKey].find(value1) != -1:
                                 hashKey = str(value1)
                                 hash3[hashKey] = { 'key': key, 'count': (hash3[hashKey]['count'] + 1 if hashKey in hash3 else 1) }
 
                 # Check against all other cells in the diagonal.
-#                print('Left Diagonal')
                 hash4 = {}
                 if key in diagonal_units[0]:
                     # Go through each digit in the cell.
                     for value1 in [char for char in value]:
                         # Check this digit against each value in the diagonal.
                         for indexKey in diagonal_units[0]:
-#                            print('Checking cell ' + indexKey + ' with value ' + values[indexKey] + ' against ' + key + ' with value ' + value + ' for ' + value1)
                             if values[indexKey].find(value1) != -1:
                                 hashKey = str(value1)
                                 hash4[hashKey] = { 'key': key, 'count': (hash4[hashKey]['count'] + 1 if hashKey in hash4 else 1) }
 
                 # Check against all other cells in the diagonal.
-#                print('Right Diagonal')
                 hash5 = {}
                 if key in diagonal_units[1]:
                     # Go through each digit in the cell.
                     for value1 in [char for char in value]:
                         # Check this digit against each value in the diagonal.
                         for indexKey in diagonal_units[1]:
-#                            print('Checking cell ' + indexKey + ' with value ' + values[indexKey] + ' against ' + key + ' with value ' + value + ' for ' + value1)
                             if values[indexKey].find(value1) != -1:
                                 hashKey = str(value1)
                                 hash5[hashKey] = { 'key': key, 'count': (hash5[hashKey]['count'] + 1 if hashKey in hash5 else 1) }
@@ -435,7 +389,6 @@ def reduce_puzzle(values):
 
         # Stop looping if the puzzle is solved.
         if solved_values_after == len(values):
-            #print('Solution found after ' + str(count) + ' iterations.')
             stalled = True
 
         # Sanity check, return False if there is a box with zero available values:
@@ -499,7 +452,6 @@ def search(values):
         # Add a child board for each potential value.
         for digit in [char for char in value] :
             # Replace the multi-values with the selected value to try.
-            #print('Trying ' + key + '=' + digit)
             new_values = values.copy()
             new_values[key] = digit
 
