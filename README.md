@@ -87,21 +87,21 @@ This solution includes functionality for solving diagonal Sudoku boards, in addi
 
 The naked-twins problem is a pattern on the Sudoku board where a unit (row, column, 3x3 grid, or diagonal) contains two instances of a box with the same two digit values. For example, a row might contain the possible values `23` and two instances of this value are located within the row. In such a case, it's clear that the two boxes must contain either the value `2` or the value `3`. Therefore, we can eliminate these two values from all other boxes in the row (or unit).
 
-The solution for detecting and eliminating a naked-twin is implemented by first traversing all boxes on the board. If the box's value has two digits, we have a potential naked twin. We search across all unit types (row, column, 3x3 grid, diagonal) and check if the value exists within the unit and it is found exactly two times. If these conditions are true, we have a naked twin. We then iterate across all other boxes in the unit (skipping the two that comprise the naked-twin) and remove the naked-twin's digits from the other box values in the unit.
+The solution for detecting and eliminating a naked-twin is implemented by first traversing all boxes on the board. If the box value has two digits, we have a potential naked twin. We search across all unit types (row, column, 3x3 grid, diagonal) and check if the value exists within the unit and it is found exactly two times. If these conditions are true, we have a naked-twin. We then iterate across all other boxes in the unit (skipping the two that comprise the naked-twin) and remove the naked-twin's digits from the other box values in the unit.
 
 The following steps detail the algorithm.
 
 1. Iterate over all boxes on the board.
-2. If a box's value has exactly two digits, continue to step 3. Otherwise, go back to step 1.
+2. If a box value has exactly two digits, continue to step 3. Otherwise, go back to step 1.
 3. Iterate over all boxes in each unit type (row, column, 3x3 grid, diagonal).
 4. Count the number of occurrences of the value from step 2 in all other boxes within the unit.
 5. After checking all boxes, if the count is exactly `2`, then continue to step 6. Otherwise, go back to step 1.
-6. For all boxes in the unit type that have a different value than the one in step 2, remove step 2 box's digits from each box, thus eliminating those values from all other boxes in the unit.
+6. For all boxes in the unit type that have a different value than the one in step 2, remove step 2 box digits from each box, thus eliminating those values from all other boxes in the unit.
 7. Repeat the process on the next target box by going back to step 1.
 
 ### How do we apply constraint propagation to solve the diagonal sudoku problem?
 
-To solve the diagonal problem in Sudoku, we must first make a list of all keys belonging to both the left and right diagonals. We can do this by starting from the first top-left box `A1` and the last top-right box `A9` and work our way downwards at a diagonal. To collect the key names that belong to each diagonal, we increment the row and increment/decrement the column, for the left and right diagonals respectively.
+To solve the diagonal problem in Sudoku, we first make a list of all keys belonging to both the left and right diagonals. This is done by starting from the top-left box `A1` and the top-right box `A9` and work our way downwards at opposing diagonals. To collect the key names that belong to each diagonal, we increment the row and increment/decrement the column, for the left and right diagonals respectively.
 
 Once we have a list of the diagonal keys, we update the methods for `eliminate`, `only_choice`, and `naked_twins`. Originally, these methods contained constraint propogation for detecting row, column, and 3x3 grids. We now add additional constraint propogation for the left and right diagonals.
 
