@@ -29,6 +29,21 @@ unitlist = unitlist
 units = extract_units(unitlist, boxes)
 peers = extract_peers(units, boxes)
 
+def get_box_coordinates(row, col):
+    """Calculate a 3x3 box origin location at the top-left."""
+    boxX = floor(cols.index(col) / 3) * 3
+    boxY = floor(rows.index(row) / 3) * 3
+
+    return boxX, boxY
+
+def set_values_by_hash_count(values, key, hash, count=1):
+    """Find any hash counts with a score of 1 and set their value in the cell key."""
+    for hashKey in hash.keys():
+        if hash[hashKey]['count'] == count:
+            setKey = hash[hashKey]['key']
+            values[key] = hashKey
+
+    return values
 
 def naked_twins(values):
     """Eliminate values using the naked twins strategy.
@@ -117,8 +132,7 @@ def naked_twins(values):
 #                print('Box')
                 count = 1
                 inUnit = False
-                boxX = floor(cols.index(key[1]) / 3) * 3
-                boxY = floor(rows.index(key[0]) / 3) * 3
+                boxX, boxY = get_box_coordinates(key[0], key[1])
 
                 # Look for a match of this value in the remainder of the unit.
                 for y in range(boxY, boxY + 3):
@@ -260,8 +274,7 @@ def eliminate(values):
 
         #print('Box')
         # Remove this value from all cells in the 3x3 box.
-        boxX = floor(cols.index(col) / 3) * 3
-        boxY = floor(rows.index(row) / 3) * 3
+        boxX, boxY = get_box_coordinates(row, col)
 
         for y in range(boxY, boxY + 3):
             for x in range(boxX, boxX + 3):
@@ -335,8 +348,7 @@ def only_choice(values):
 #                print('Box')
                 hash3 = {}
                 # Remove this value from all cells in the 3x3 box.
-                boxX = floor(cols.index(key[1]) / 3) * 3
-                boxY = floor(rows.index(key[0]) / 3) * 3
+                boxX, boxY = get_box_coordinates(key[0], key[1])
 
                 # Go through each digit in the cell.
                 for value1 in [char for char in value]:
@@ -376,39 +388,11 @@ def only_choice(values):
                                 hash5[hashKey] = { 'key': key, 'count': (hash5[hashKey]['count'] + 1 if hashKey in hash5 else 1) }
 
                 # Find any hash counts with a score of 1 and set their value in the cell key.
-                for hashKey in hash1.keys():
-                    if hash1[hashKey]['count'] == 1:
-                        setKey = hash1[hashKey]['key']
-#                        print('Only choice for ' + key + ' is ' + hashKey)
-                        values[key] = hashKey
-
-                # Find any hash counts with a score of 1 and set their value in the cell key.
-                for hashKey in hash2.keys():
-                    if hash2[hashKey]['count'] == 1:
-                        setKey = hash2[hashKey]['key']
-#                        print('Only choice for ' + key + ' is ' + hashKey)
-                        values[key] = hashKey
-
-                # Find any hash counts with a score of 1 and set their value in the cell key.
-                for hashKey in hash3.keys():
-                    if hash3[hashKey]['count'] == 1:
-                        setKey = hash3[hashKey]['key']
-#                        print('Only choice for ' + key + ' is ' + hashKey)
-                        values[key] = hashKey
-
-                # Find any hash counts with a score of 1 and set their value in the cell key.
-                for hashKey in hash4.keys():
-                    if hash4[hashKey]['count'] == 1:
-                        setKey = hash4[hashKey]['key']
-                        #print('Only choice for ' + key + ' is ' + hashKey)
-                        values[key] = hashKey
-
-                # Find any hash counts with a score of 1 and set their value in the cell key.
-                for hashKey in hash5.keys():
-                    if hash5[hashKey]['count'] == 1:
-                        setKey = hash5[hashKey]['key']
-                        #print('Only choice for ' + key + ' is ' + hashKey)
-                        values[key] = hashKey
+                values = set_values_by_hash_count(values, key, hash1)
+                values = set_values_by_hash_count(values, key, hash2)
+                values = set_values_by_hash_count(values, key, hash3)
+                values = set_values_by_hash_count(values, key, hash4)
+                values = set_values_by_hash_count(values, key, hash5)
 
     return values
 
@@ -548,13 +532,6 @@ def solve(grid):
 
 if __name__ == "__main__":
     diag_sudoku_grid = '2.............62....1....7...6..8...3...9...7...6..4...4....8....52.............3'
-
-#    values = grid2values(diag_sudoku_grid)
-#    display(values)
-#    print('-------------------------------')
-#    values = eliminate(values)
-#    values = only_choice(values)
-#    display(values)
 
     display(grid2values(diag_sudoku_grid))
     result = solve(diag_sudoku_grid)
