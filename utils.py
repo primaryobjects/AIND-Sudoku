@@ -1,6 +1,6 @@
 
 from collections import defaultdict
-
+import numpy as np
 
 rows = 'ABCDEFGHI'
 cols = '123456789'
@@ -107,7 +107,7 @@ def values2grid(values):
     Returns
     -------
     a string representing a sudoku grid.
-        
+
         Ex. '2.............62....1....7...6..8...3...9...7...6..4...4....8....52.............3'
     """
     res = []
@@ -125,9 +125,9 @@ def grid2values(grid):
     ----------
     grid(string)
         a string representing a sudoku grid.
-        
+
         Ex. '2.............62....1....7...6..8...3...9...7...6..4...4....8....52.............3'
-    
+
     Returns
     -------
         A grid in dictionary form
@@ -161,7 +161,7 @@ def display(values):
 
 
 def reconstruct(values, history):
-    """Returns the solution as a sequence of value assignments 
+    """Returns the solution as a sequence of value assignments
 
     Parameters
     ----------
@@ -185,3 +185,32 @@ def reconstruct(values, history):
         prev, step = history[prev]
         path.append(step)
     return path[::-1]
+
+def string2array(line):
+    # Converts a sudoku solution in the form 123456789123456789... into 123456789\n123456789\n... a newline separated string every 9 digits.
+    result = ''
+    parts = [line[i:i+9] for i in range(0, len(line), 9)]
+    for part in parts:
+        result += part + '\n'
+
+    return result
+
+def validate(sudoku):
+    """ Return True if grid is a valid Sudoku square, otherwise False, "Error".
+    Input: {'A1': '2', 'A2': '6', 'A3': '7' ...}
+    """
+    # Convert a sudoku result into string.
+    v = values2grid(sudoku)
+    # Convert the grid of values to an array of strings.
+    v = string2array(v)
+    # Convert the array of strings to a grid of integers.
+    grid = np.array([[int(i) for i in line] for line in v.split()])
+
+    for i in range(9):
+        # j, k index top left hand corner of each 3x3 tile
+        j, k = (i // 3) * 3, (i % 3) * 3
+        if len(set(grid[i,:])) != 9 or len(set(grid[:,i])) != 9\
+                   or len(set(grid[j:j+3, k:k+3].ravel())) != 9:
+            error = 'Invalid digit in column ' + str(i) + ', in box beginning at position col=' + str(j) + ', row=' + str(k)
+            return False, error
+    return True, None
