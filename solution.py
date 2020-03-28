@@ -49,7 +49,7 @@ def set_values_by_hash_count(values, key, hash, count=1):
 
     return values
 
-def naked_twins(values):
+def naked_twins(values, is_diagonal=True):
     """Eliminate values using the naked twins strategy.
 
     Parameters
@@ -148,46 +148,47 @@ def naked_twins(values):
                                 for digit in [char for char in value]:
                                     values[indexKey] = values[indexKey].replace(digit, '')
 
-                # Check against all other cells in the diagonal.
-                count = 1
-                inUnit = False
-                # Look for a match of this value in the remainder of the unit.
-                for indexKey in diagonal_units[0]:
-                    if indexKey != key and values[indexKey] == value:
-                        count = count + 1
-                    elif indexKey == key:
-                        inUnit = True
-                if count == 2 and inUnit:
-                    # We have a naked twin (two occurrences of the value exist in this unit).
-                    # Go through all other cells in the unit and remove the digits contained in this value.
+                if is_diagonal:
+                    # Check against all other cells in the diagonal.
+                    count = 1
+                    inUnit = False
+                    # Look for a match of this value in the remainder of the unit.
                     for indexKey in diagonal_units[0]:
-                        if values[indexKey] != value:
-                            # Remove the digits contained in this value from the current box's value.
-                            for digit in [char for char in value]:
-                                values[indexKey] = values[indexKey].replace(digit, '')
+                        if indexKey != key and values[indexKey] == value:
+                            count = count + 1
+                        elif indexKey == key:
+                            inUnit = True
+                    if count == 2 and inUnit:
+                        # We have a naked twin (two occurrences of the value exist in this unit).
+                        # Go through all other cells in the unit and remove the digits contained in this value.
+                        for indexKey in diagonal_units[0]:
+                            if values[indexKey] != value:
+                                # Remove the digits contained in this value from the current box's value.
+                                for digit in [char for char in value]:
+                                    values[indexKey] = values[indexKey].replace(digit, '')
 
-                # Check against all other cells in the diagonal.
-                count = 1
-                inUnit = False
-                # Look for a match of this value in the remainder of the unit.
-                for indexKey in diagonal_units[1]:
-                    if indexKey != key and values[indexKey] == value:
-                        count = count + 1
-                    elif indexKey == key:
-                        inUnit = True
-                if count == 2 and inUnit:
-                    # We have a naked twin (two occurrences of the value exist in this unit).
-                    # Go through all other cells in the unit and remove the digits contained in this value.
+                    # Check against all other cells in the diagonal.
+                    count = 1
+                    inUnit = False
+                    # Look for a match of this value in the remainder of the unit.
                     for indexKey in diagonal_units[1]:
-                        if values[indexKey] != value:
-                            # Remove the digits contained in this value from the current box's value.
-                            for digit in [char for char in value]:
-                                values[indexKey] = values[indexKey].replace(digit, '')
+                        if indexKey != key and values[indexKey] == value:
+                            count = count + 1
+                        elif indexKey == key:
+                            inUnit = True
+                    if count == 2 and inUnit:
+                        # We have a naked twin (two occurrences of the value exist in this unit).
+                        # Go through all other cells in the unit and remove the digits contained in this value.
+                        for indexKey in diagonal_units[1]:
+                            if values[indexKey] != value:
+                                # Remove the digits contained in this value from the current box's value.
+                                for digit in [char for char in value]:
+                                    values[indexKey] = values[indexKey].replace(digit, '')
 
     return values
 
 
-def eliminate(values):
+def eliminate(values, is_diagonal=True):
     """Apply the eliminate strategy to a Sudoku puzzle
 
     The eliminate strategy says that if a box has a value assigned, then none
@@ -232,19 +233,20 @@ def eliminate(values):
             if not indexKey in readKeys.keys():
                 values[indexKey] = values[indexKey].replace(value, '')
 
-        # Remove this value from all cells in the diagonal.
-        if key in diagonal_units[0]:
-            # A single-digit key is in a diagonal, remove it from all other diagonal values.
-            for indexKey in diagonal_units[0]:
-                if not indexKey in readKeys.keys():
-                    values[indexKey] = values[indexKey].replace(value, '')
+        if is_diagonal:
+            # Remove this value from all cells in the diagonal.
+            if key in diagonal_units[0]:
+                # A single-digit key is in a diagonal, remove it from all other diagonal values.
+                for indexKey in diagonal_units[0]:
+                    if not indexKey in readKeys.keys():
+                        values[indexKey] = values[indexKey].replace(value, '')
 
-        # Remove this value from all cells in the diagonal.
-        if key in diagonal_units[1]:
-            # A single-digit key is in a diagonal, remove it from all other diagonal values.
-            for indexKey in diagonal_units[1]:
-                if not indexKey in readKeys.keys():
-                    values[indexKey] = values[indexKey].replace(value, '')
+            # Remove this value from all cells in the diagonal.
+            if key in diagonal_units[1]:
+                # A single-digit key is in a diagonal, remove it from all other diagonal values.
+                for indexKey in diagonal_units[1]:
+                    if not indexKey in readKeys.keys():
+                        values[indexKey] = values[indexKey].replace(value, '')
 
         # Remove this value from all cells in the 3x3 box.
         boxX, boxY = get_box_coordinates(row, col)
@@ -257,7 +259,7 @@ def eliminate(values):
 
     return values
 
-def only_choice(values):
+def only_choice(values, is_diagonal=True):
     """Apply the only choice strategy to a Sudoku puzzle
 
     The only choice strategy says that if only one box in a unit allows a certain
@@ -349,13 +351,13 @@ def only_choice(values):
                 values = set_values_by_hash_count(values, key, hash1)
                 values = set_values_by_hash_count(values, key, hash2)
                 values = set_values_by_hash_count(values, key, hash3)
-                values = set_values_by_hash_count(values, key, hash4)
-                values = set_values_by_hash_count(values, key, hash5)
+                if is_diagonal:
+                    values = set_values_by_hash_count(values, key, hash4)
+                    values = set_values_by_hash_count(values, key, hash5)
 
     return values
 
-
-def reduce_puzzle(values):
+def reduce_puzzle(values, is_diagonal=True):
     """Reduce a Sudoku puzzle by repeatedly applying all constraint strategies
 
     Parameters
@@ -377,13 +379,13 @@ def reduce_puzzle(values):
         solved_values_before = len([box for box in values.keys() if len(values[box]) == 1])
 
         # Your code here: Use the Eliminate Strategy
-        values = eliminate(values)
+        values = eliminate(values, is_diagonal)
 
         # Your code here: Use the Only Choice Strategy
-        values = only_choice(values)
+        values = only_choice(values, is_diagonal)
 
         # Your code here: Use the Naked Twins Strategy
-        values = naked_twins(values)
+        values = naked_twins(values, is_diagonal)
 
         # Check how many boxes have a determined value, to compare
         solved_values_after = len([box for box in values.keys() if len(values[box]) == 1])
@@ -429,7 +431,7 @@ def validate(sudoku, is_diagonal=False):
         j, k = (i // 3) * 3, (i % 3) * 3
         if len(set(grid[i,:])) != 9 or len(set(grid[:,i])) != 9\
                    or len(set(grid[j:j+3, k:k+3].ravel())) != 9:
-            error = 'Invalid digit in column ' + str(i) + ', in box beginning at position col=' + str(j) + ', row=' + str(k)
+            error = 'Invalid digit in column ' + str(i) + ', in box beginning at position y=' + str(j) + ', x=' + str(k)
             return False, error
 
     if is_diagonal:
@@ -449,7 +451,7 @@ def validate(sudoku, is_diagonal=False):
 
     return True, None
 
-def search(values):
+def search(values, is_diagonal=True):
     """Apply depth first search to solve Sudoku puzzles in order to solve puzzles
     that cannot be solved by repeated reduction alone.
 
@@ -470,11 +472,11 @@ def search(values):
     """
 
     # First, reduce the puzzle using the previous function
-    values = reduce_puzzle(values)
+    values = reduce_puzzle(values, is_diagonal)
     is_all_single_digits = all(len(values[value]) == 1 for value in boxes) if values else False
     is_valid = False
     if is_all_single_digits:
-        is_valid, err = validate(values, True)
+        is_valid, err = validate(values, is_diagonal)
 
     if not values:
         # Failed to find a solution.
@@ -511,14 +513,14 @@ def search(values):
                 new_values = values.copy()
                 new_values[key] = digit
 
-                result = search(new_values)
+                result = search(new_values, is_diagonal)
                 if result:
                     # Solved.
                     return result
 
     return False
 
-def solve(grid):
+def solve(grid, is_diagonal=True):
     """Find the solution to a Sudoku puzzle using search and constraint propagation
 
     Parameters
@@ -534,17 +536,19 @@ def solve(grid):
         The dictionary representation of the final sudoku grid or False if no solution exists.
     """
     values = grid2values(grid)
-    values = search(values)
+    values = search(values, is_diagonal)
     return values
 
 if __name__ == "__main__":
-    diag_sudoku_grid = '.......535.......7........4......43..6....19....8..27.......3.......45........7..' #'5.....87.....5.4..9.....25....895....5....9..1.......5...5..............3..1.....'
+    diag_sudoku_grid = '263.8.7....94....1..7..2.5..91.478..8..5....2.2.6...3..5.3.1.49......1.66.472...3'
+    is_diagonal = False
 
     display(grid2values(diag_sudoku_grid))
-    result = solve(diag_sudoku_grid)
+    result = solve(diag_sudoku_grid, is_diagonal)
+    print(result)
     display(result)
 
-    is_valid, err = validate(result, True)
+    is_valid, err = validate(result, is_diagonal)
     if not is_valid:
         print(err)
     else:

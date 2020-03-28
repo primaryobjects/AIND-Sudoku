@@ -109,5 +109,40 @@ class TestDiagonalSudoku(unittest.TestCase):
     def test_solve(self):
         self.assertEqual(solution.solve(self.diagonal_grid), self.solved_diag_sudoku)
 
+class TestSudokuCases(unittest.TestCase):
+    # Non-diagonal test cases.
+    file_names = [
+        'puzzles0_kaggle',
+        'puzzles1_17_clue',
+        'puzzles2_magictour_top1465',
+        'puzzles3_forum_hardest_1905',
+        'puzzles5_forum_hardest_1106',
+        'puzzles6_serg_benchmark'
+    ]
+    count = 100
+
+    def test_puzzles(self):
+        for file_name in self.file_names:
+            puzzles = []
+            path = 'tests/data/' + file_name
+            print('Loading puzzles from ' + path)
+
+            with open(path, 'r') as fp:
+                for puzzle in fp:
+                    if not puzzle.startswith('#') and len(puzzles) < self.count:
+                        puzzles.append(puzzle.rstrip())
+
+            for cnt, puzzle in enumerate(puzzles):
+                print('Test Case ' + str(cnt+1) + '/' + str(len(puzzles)) + ' ' + str(round(((cnt+1) / len(puzzles)) * 100, 2)) + '%: ' + puzzle)
+
+                result = solution.solve(puzzle, False)
+                self.assertTrue(result)
+
+                if result:
+                    is_valid, err = solution.validate(result, False)
+                    if not is_valid:
+                        print(err)
+                    self.assertTrue(is_valid)
+
 if __name__ == '__main__':
     unittest.main()
