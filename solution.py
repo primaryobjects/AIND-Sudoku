@@ -2,6 +2,10 @@
 from utils import *
 from math import floor
 
+import os
+os.environ['OPENBLAS_NUM_THREADS'] = '1' # https://stackoverflow.com/a/57549064
+import numpy as np
+
 row_units = [cross(r, cols) for r in rows]
 column_units = [cross(rows, c) for c in cols]
 square_units = [cross(rs, cs) for rs in ('ABC','DEF','GHI') for cs in ('123','456','789')]
@@ -399,6 +403,52 @@ def reduce_puzzle(values):
 
     return values
 
+def string2array(line):
+    """Converts a sudoku solution in the form 123456789123456789... into 123456789\n123456789\n... a newline separated string every 9 digits.
+    """
+    result = ''
+    parts = [line[i:i+9] for i in range(0, len(line), 9)]
+    for part in parts:
+        result += part + '\n'
+
+    return result
+
+def validate(sudoku, is_diagonal=False):
+    """Return True if grid is a valid Sudoku square, otherwise False, "Error".
+    Input: {'A1': '2', 'A2': '6', 'A3': '7' ...}
+    """
+    # Convert a sudoku result into string.
+    v = values2grid(sudoku)
+    # Convert the grid of values to an array of strings.
+    v = string2array(v)
+    # Convert the array of strings to a grid of integers.
+    grid = np.array([[int(i) for i in line] for line in v.split()])
+
+    for i in range(9):
+        # j, k index top left hand corner of each 3x3 tile
+        j, k = (i // 3) * 3, (i % 3) * 3
+        if len(set(grid[i,:])) != 9 or len(set(grid[:,i])) != 9\
+                   or len(set(grid[j:j+3, k:k+3].ravel())) != 9:
+            error = 'Invalid digit in column ' + str(i) + ', in box beginning at position col=' + str(j) + ', row=' + str(k)
+            return False, error
+
+    if is_diagonal:
+        # Validate diagonals.
+        sum_1 = 0
+        sum_2 = 0
+        for i in range(9):
+            diag_1_value = grid[i, i]
+            diag_2_value = grid[8-i, 8-i]
+            sum_1 += diag_1_value
+            sum_2 += diag_2_value
+
+        if sum_1 != 45:
+            return False, 'Invalid diagonal from top-left to bottom-right.'
+        elif sum_2 != 45:
+            return False, 'Invalid diagonal from top-right to bottom-left.'
+
+    return True, None
+
 def search(values):
     """Apply depth first search to solve Sudoku puzzles in order to solve puzzles
     that cannot be solved by repeated reduction alone.
@@ -421,10 +471,15 @@ def search(values):
 
     # First, reduce the puzzle using the previous function
     values = reduce_puzzle(values)
+    is_all_single_digits = all(len(values[value]) == 1 for value in boxes) if values else False
+    is_valid = False
+    if is_all_single_digits:
+        is_valid, err = validate(values, True)
+
     if not values:
         # Failed to find a solution.
         return False
-    elif all(len(values[value]) == 1 for value in boxes):
+    elif is_all_single_digits and is_valid:
         # Solved.
         return values
     else:
@@ -444,21 +499,22 @@ def search(values):
         fringe_sorted = sorted(fringe.items(), key=lambda x: len(x[1]))
 
         # Select the next child to solve.
-        child = fringe_sorted.pop(0)
-        key = child[0]
-        value = child[1]
+        if len(fringe_sorted) > 0:
+            child = fringe_sorted.pop(0)
+            key = child[0]
+            value = child[1]
 
-        # Now use recursion to solve each one of the resulting sudokus, and if one returns a value (not False), return that answer!
-        # Add a child board for each potential value.
-        for digit in [char for char in value] :
-            # Replace the multi-values with the selected value to try.
-            new_values = values.copy()
-            new_values[key] = digit
+            # Now use recursion to solve each one of the resulting sudokus, and if one returns a value (not False), return that answer!
+            # Add a child board for each potential value.
+            for digit in [char for char in value] :
+                # Replace the multi-values with the selected value to try.
+                new_values = values.copy()
+                new_values[key] = digit
 
-            result = search(new_values)
-            if result:
-                # Solved.
-                return result
+                result = search(new_values)
+                if result:
+                    # Solved.
+                    return result
 
     return False
 
@@ -482,13 +538,13 @@ def solve(grid):
     return values
 
 if __name__ == "__main__":
-    diag_sudoku_grid = '2.............62....1....7...6..8...3...9...7...6..4...4....8....52.............3'
+    diag_sudoku_grid = '.......535.......7........4......43..6....19....8..27.......3.......45........7..' #'5.....87.....5.4..9.....25....895....5....9..1.......5...5..............3..1.....'
 
     display(grid2values(diag_sudoku_grid))
     result = solve(diag_sudoku_grid)
     display(result)
 
-    is_valid, err = validate(result)
+    is_valid, err = validate(result, True)
     if not is_valid:
         print(err)
     else:
