@@ -122,7 +122,7 @@ class TestSudokuCases(unittest.TestCase):
         'puzzles5_forum_hardest_1106',
         'puzzles6_serg_benchmark'
     ]
-    count = 1
+    count = 50
 
     def test_puzzles(self):
         solution.skip_diagonal = True
