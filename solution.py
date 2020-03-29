@@ -10,6 +10,7 @@ row_units = [cross(r, cols) for r in rows]
 column_units = [cross(rows, c) for c in cols]
 square_units = [cross(rs, cs) for rs in ('ABC','DEF','GHI') for cs in ('123','456','789')]
 diagonal_units = []
+skip_diagonal = False
 
 # Create the diagonal units, starting from the top-left and top-right and working diagonal downwards.
 col_index = 0
@@ -24,10 +25,6 @@ diagonal_units.append(right_diagonal)
 diagonal_keys = [item for sublist in diagonal_units for item in sublist]
 
 unitlist = row_units + column_units + square_units + diagonal_units
-
-# TODO: Update the unit list to add the new diagonal units
-unitlist = unitlist
-
 
 # Must be called after all units (including diagonals) are added to the unitlist
 units = extract_units(unitlist, boxes)
@@ -49,7 +46,7 @@ def set_values_by_hash_count(values, key, hash, count=1):
 
     return values
 
-def naked_twins(values, is_diagonal=True):
+def naked_twins(values):
     """Eliminate values using the naked twins strategy.
 
     Parameters
@@ -148,7 +145,7 @@ def naked_twins(values, is_diagonal=True):
                                 for digit in [char for char in value]:
                                     values[indexKey] = values[indexKey].replace(digit, '')
 
-                if is_diagonal:
+                if not skip_diagonal:
                     # Check against all other cells in the diagonal.
                     count = 1
                     inUnit = False
@@ -188,7 +185,7 @@ def naked_twins(values, is_diagonal=True):
     return values
 
 
-def eliminate(values, is_diagonal=True):
+def eliminate(values):
     """Apply the eliminate strategy to a Sudoku puzzle
 
     The eliminate strategy says that if a box has a value assigned, then none
@@ -233,7 +230,7 @@ def eliminate(values, is_diagonal=True):
             if not indexKey in readKeys.keys():
                 values[indexKey] = values[indexKey].replace(value, '')
 
-        if is_diagonal:
+        if not skip_diagonal:
             # Remove this value from all cells in the diagonal.
             if key in diagonal_units[0]:
                 # A single-digit key is in a diagonal, remove it from all other diagonal values.
@@ -259,7 +256,7 @@ def eliminate(values, is_diagonal=True):
 
     return values
 
-def only_choice(values, is_diagonal=True):
+def only_choice(values):
     """Apply the only choice strategy to a Sudoku puzzle
 
     The only choice strategy says that if only one box in a unit allows a certain
@@ -351,13 +348,13 @@ def only_choice(values, is_diagonal=True):
                 values = set_values_by_hash_count(values, key, hash1)
                 values = set_values_by_hash_count(values, key, hash2)
                 values = set_values_by_hash_count(values, key, hash3)
-                if is_diagonal:
+                if not skip_diagonal:
                     values = set_values_by_hash_count(values, key, hash4)
                     values = set_values_by_hash_count(values, key, hash5)
 
     return values
 
-def reduce_puzzle(values, is_diagonal=True):
+def reduce_puzzle(values):
     """Reduce a Sudoku puzzle by repeatedly applying all constraint strategies
 
     Parameters
@@ -379,13 +376,13 @@ def reduce_puzzle(values, is_diagonal=True):
         solved_values_before = len([box for box in values.keys() if len(values[box]) == 1])
 
         # Your code here: Use the Eliminate Strategy
-        values = eliminate(values, is_diagonal)
+        values = eliminate(values)
 
         # Your code here: Use the Only Choice Strategy
-        values = only_choice(values, is_diagonal)
+        values = only_choice(values)
 
         # Your code here: Use the Naked Twins Strategy
-        values = naked_twins(values, is_diagonal)
+        values = naked_twins(values)
 
         # Check how many boxes have a determined value, to compare
         solved_values_after = len([box for box in values.keys() if len(values[box]) == 1])
@@ -415,7 +412,7 @@ def string2array(line):
 
     return result
 
-def validate(sudoku, is_diagonal=False):
+def validate(sudoku):
     """Return True if grid is a valid Sudoku square, otherwise False, "Error".
     Input: {'A1': '2', 'A2': '6', 'A3': '7' ...}
     """
@@ -434,7 +431,7 @@ def validate(sudoku, is_diagonal=False):
             error = 'Invalid digit in column ' + str(i) + ', in box beginning at position y=' + str(j) + ', x=' + str(k)
             return False, error
 
-    if is_diagonal:
+    if not skip_diagonal:
         # Validate diagonals.
         sum_1 = 0
         sum_2 = 0
@@ -451,7 +448,7 @@ def validate(sudoku, is_diagonal=False):
 
     return True, None
 
-def search(values, is_diagonal=True):
+def search(values):
     """Apply depth first search to solve Sudoku puzzles in order to solve puzzles
     that cannot be solved by repeated reduction alone.
 
@@ -472,11 +469,11 @@ def search(values, is_diagonal=True):
     """
 
     # First, reduce the puzzle using the previous function
-    values = reduce_puzzle(values, is_diagonal)
+    values = reduce_puzzle(values)
     is_all_single_digits = all(len(values[value]) == 1 for value in boxes) if values else False
     is_valid = False
     if is_all_single_digits:
-        is_valid, err = validate(values, is_diagonal)
+        is_valid, err = validate(values)
 
     if not values:
         # Failed to find a solution.
@@ -513,14 +510,14 @@ def search(values, is_diagonal=True):
                 new_values = values.copy()
                 new_values[key] = digit
 
-                result = search(new_values, is_diagonal)
+                result = search(new_values)
                 if result:
                     # Solved.
                     return result
 
     return False
 
-def solve(grid, is_diagonal=True):
+def solve(grid):
     """Find the solution to a Sudoku puzzle using search and constraint propagation
 
     Parameters
@@ -536,19 +533,17 @@ def solve(grid, is_diagonal=True):
         The dictionary representation of the final sudoku grid or False if no solution exists.
     """
     values = grid2values(grid)
-    values = search(values, is_diagonal)
+    values = search(values)
     return values
 
 if __name__ == "__main__":
-    diag_sudoku_grid = '263.8.7....94....1..7..2.5..91.478..8..5....2.2.6...3..5.3.1.49......1.66.472...3'
-    is_diagonal = False
+    diag_sudoku_grid = '1......2.....9.5...............8...4.........9..7123...........3....4.....936.4..'
 
     display(grid2values(diag_sudoku_grid))
-    result = solve(diag_sudoku_grid, is_diagonal)
-    print(result)
+    result = solve(diag_sudoku_grid)
     display(result)
 
-    is_valid, err = validate(result, is_diagonal)
+    is_valid, err = validate(result)
     if not is_valid:
         print(err)
     else:

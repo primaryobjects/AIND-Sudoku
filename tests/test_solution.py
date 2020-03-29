@@ -83,10 +83,12 @@ class TestNakedTwins(unittest.TestCase):
     ]
 
     def test_naked_twins(self):
+        solution.skip_diagonal = False
         self.assertTrue(solution.naked_twins(self.before_naked_twins_1) in self.possible_solutions_1,
                         "Your naked_twins function produced an unexpected board.")
 
     def test_naked_twins2(self):
+        solution.skip_diagonal = False
         self.assertTrue(solution.naked_twins(self.before_naked_twins_2) in self.possible_solutions_2,
                         "Your naked_twins function produced an unexpected board.")
 
@@ -107,6 +109,7 @@ class TestDiagonalSudoku(unittest.TestCase):
                           'D1': '5'}
 
     def test_solve(self):
+        solution.skip_diagonal = False
         self.assertEqual(solution.solve(self.diagonal_grid), self.solved_diag_sudoku)
 
 class TestSudokuCases(unittest.TestCase):
@@ -119,9 +122,10 @@ class TestSudokuCases(unittest.TestCase):
         'puzzles5_forum_hardest_1106',
         'puzzles6_serg_benchmark'
     ]
-    count = 100
+    count = 1
 
     def test_puzzles(self):
+        solution.skip_diagonal = True
         for file_name in self.file_names:
             puzzles = []
             path = 'tests/data/' + file_name
@@ -135,11 +139,11 @@ class TestSudokuCases(unittest.TestCase):
             for cnt, puzzle in enumerate(puzzles):
                 print('Test Case ' + str(cnt+1) + '/' + str(len(puzzles)) + ' ' + str(round(((cnt+1) / len(puzzles)) * 100, 2)) + '%: ' + puzzle)
 
-                result = solution.solve(puzzle, False)
+                result = solution.solve(puzzle)
                 self.assertTrue(result)
 
                 if result:
-                    is_valid, err = solution.validate(result, False)
+                    is_valid, err = solution.validate(result)
                     if not is_valid:
                         print(err)
                     self.assertTrue(is_valid)
