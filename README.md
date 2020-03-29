@@ -128,3 +128,15 @@ diagonal_units.append(left_diagonal)
 diagonal_units.append(right_diagonal)
 diagonal_keys = [item for sublist in diagonal_units for item in sublist]
 ```
+
+## Unit Tests
+
+A bulk set of Sudoku [puzzles](tests/data) are included in this repository and executed against the solver during unit testing. This allows the unit tests to confirm the success of the solver.
+
+Each Sudoku puzzle file contains string representations of a puzzle, one per line. An example is shown below.
+
+```text
+........6..5..8.9..3.4..7....491........8..4.5....42....1..9.5..6....4.37........
+```
+
+The unit tests load the puzzle, obtain a solution, and then verify a valid Sudoku result.
