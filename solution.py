@@ -37,12 +37,19 @@ def get_box_coordinates(row, col):
 
     return boxX, boxY
 
+def is_duplicate_peer_value(values, key, value):
+    """Returns the peer key that has the same value as key. Otherwise, returns None."""
+    for peerKey in peers[key]:
+        if values[peerKey] == value:
+            return peerKey
+
 def set_values_by_hash_count(values, key, hash, count=1):
     """Find any hash counts with a score of 1 and set their value in the cell key."""
     for hashKey in hash.keys():
         if hash[hashKey]['count'] == count:
-            setKey = hash[hashKey]['key']
-            values[key] = hashKey
+            # Verify this value (hashKey) does not create a duplicate with another peer's value.
+            if not is_duplicate_peer_value(values, key, hashKey):
+                values[key] = hashKey
 
     return values
 
@@ -201,58 +208,12 @@ def eliminate(values):
     dict
         The values dictionary with the assigned values eliminated from peers
     """
-
-     # Get a list of all cells with a single value in them.
-    readKeys = {}
-    for row in range(0, len(rows)):
-        for col in range(0, len(cols)):
-            key = rows[row] + cols[col]
-            value = values[key]
-
-            if len(value) == 1:
-                readKeys[key] = value
-
-    # Now go through the list of target keys and remove their value from all peers.
-    for key in readKeys.keys():
-        row = key[0]
-        col = key[1]
-        value = readKeys[key]
-
-        # Remove this value from all cells in the row.
-        for colIndex in range(0, len(cols)):
-            indexKey = row + cols[colIndex]
-            if not indexKey in readKeys.keys():
-                values[indexKey] = values[indexKey].replace(value, '')
-
-        # Remove this value from all cells in the column.
-        for rowIndex in range(0, len(rows)):
-            indexKey = rows[rowIndex] + col
-            if not indexKey in readKeys.keys():
-                values[indexKey] = values[indexKey].replace(value, '')
-
-        if not skip_diagonal:
-            # Remove this value from all cells in the diagonal.
-            if key in diagonal_units[0]:
-                # A single-digit key is in a diagonal, remove it from all other diagonal values.
-                for indexKey in diagonal_units[0]:
-                    if not indexKey in readKeys.keys():
-                        values[indexKey] = values[indexKey].replace(value, '')
-
-            # Remove this value from all cells in the diagonal.
-            if key in diagonal_units[1]:
-                # A single-digit key is in a diagonal, remove it from all other diagonal values.
-                for indexKey in diagonal_units[1]:
-                    if not indexKey in readKeys.keys():
-                        values[indexKey] = values[indexKey].replace(value, '')
-
-        # Remove this value from all cells in the 3x3 box.
-        boxX, boxY = get_box_coordinates(row, col)
-
-        for y in range(boxY, boxY + 3):
-            for x in range(boxX, boxX + 3):
-                indexKey = rows[y] + cols[x]
-                if not indexKey in readKeys.keys():
-                    values[indexKey] = values[indexKey].replace(value, '')
+    single_values = [box for box in values.keys() if len(values[box]) == 1]
+    for box in single_values:
+        value = values[box]
+        for peer_key in peers[box]:
+            # Remove the value from the list of possible values.
+            values[peer_key] = values[peer_key].replace(value, '')
 
     return values
 
@@ -389,10 +350,6 @@ def reduce_puzzle(values):
 
         # If no new values were added, stop the loop.
         stalled = solved_values_before == solved_values_after
-
-        # Stop looping if the puzzle is solved.
-        if solved_values_after == len(values):
-            stalled = True
 
         # Sanity check, return False if there is a box with zero available values:
         if len([box for box in values.keys() if len(values[box]) == 0]):
@@ -547,7 +504,7 @@ def solve(grid):
     return values
 
 if __name__ == "__main__":
-    diag_sudoku_grid = '..7..5..2.......13.........9...8.7......7...5..2.......1..3.......54.......7....4'
+    diag_sudoku_grid = '5.....87.....5.4..9.....25....895....5....9..1.......5...5..............3..1.....'
 
     display(grid2values(diag_sudoku_grid))
     result = solve(diag_sudoku_grid)
