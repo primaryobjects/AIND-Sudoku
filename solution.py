@@ -423,12 +423,23 @@ def validate(sudoku):
     # Convert the array of strings to a grid of integers.
     grid = np.array([[int(i) for i in line] for line in v.split()])
 
+    def find_duplicates(arr):
+        """Returns an array of duplicate values found within the input array."""
+        uniques, count = np.unique(arr, return_counts=True)
+        return uniques[count > 1]
+
     for i in range(9):
+        error = None
         # j, k index top left hand corner of each 3x3 tile
         j, k = (i // 3) * 3, (i % 3) * 3
-        if len(set(grid[i,:])) != 9 or len(set(grid[:,i])) != 9\
-                   or len(set(grid[j:j+3, k:k+3].ravel())) != 9:
-            error = 'Invalid digit in column ' + str(i) + ', in box beginning at position y=' + str(j) + ', x=' + str(k)
+        if len(set(grid[i,:])) != 9:
+            error = 'Duplicate digit ' + str(find_duplicates(grid[i,:])) + ' found in row ' + str(i)
+        elif len(set(grid[:,i])) != 9:
+            error = 'Duplicate digit ' + str(find_duplicates(grid[:,i])) + ' found in column ' + str(i)
+        elif len(set(grid[j:j+3, k:k+3].ravel())) != 9:
+            error = 'Duplicate digit ' + str(find_duplicates(grid[j:j+3, k:k+3])) + ' found in box at position y=' + str(j) + ', x=' + str(k) + '\n' + str(grid[j:j+3, k:k+3])
+
+        if error:
             return False, error
 
     if not skip_diagonal:
@@ -467,7 +478,6 @@ def search(values):
     You should be able to complete this function by copying your code from the classroom
     and extending it to call the naked twins strategy.
     """
-
     # First, reduce the puzzle using the previous function
     values = reduce_puzzle(values)
     is_all_single_digits = all(len(values[value]) == 1 for value in boxes) if values else False
@@ -537,7 +547,7 @@ def solve(grid):
     return values
 
 if __name__ == "__main__":
-    diag_sudoku_grid = '1......2.....9.5...............8...4.........9..7123...........3....4.....936.4..'
+    diag_sudoku_grid = '..7..5..2.......13.........9...8.7......7...5..2.......1..3.......54.......7....4'
 
     display(grid2values(diag_sudoku_grid))
     result = solve(diag_sudoku_grid)
